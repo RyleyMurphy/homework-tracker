@@ -12,4 +12,10 @@ class AssignmentPresenter {
   void toggleCompleted(int index) {
     _assignments[index].isCompleted = !_assignments[index].isCompleted;
   }
+
+  void updateAssignmentTitle(int index, String newTitle) {
+    final assignment = _assignments[index];
+    _assignments[index] = Assignment(title: newTitle)
+      ..isCompleted = assignment.isCompleted;
+  }
 }

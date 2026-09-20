@@ -12,6 +12,46 @@ class AssignmentListScreen extends StatefulWidget {
 class _AssignmentListScreenState extends State<AssignmentListScreen> {
   final AssignmentPresenter _presenter = AssignmentPresenter();
 
+
+  void _updateAssignmentTitle() {
+    String updatedTitle = '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Update Assignment Title'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'Enter new assignment title'),
+            onChanged: (value) {
+              updatedTitle = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel Button
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (updatedTitle.trim().isNotEmpty) {
+                  setState(() {
+                    // Update the title of the first assignment for demonstration purposes
+                    if (_presenter.assignments.isNotEmpty) {
+                      _presenter.updateAssignmentTitle(0, updatedTitle.trim());
+                    }
+                  });
+                }
+                Navigator.pop(context); // Close Dialog
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
   void _showAddAssignmentDialog() {
     String newAssignmentTitle = '';
 
@@ -58,7 +98,6 @@ void _toggleCompleted(int index, bool? value) {
 @override
 Widget build(BuildContext context) {
   final assignments = _presenter.assignments;  
-
   return Scaffold(
     appBar: AppBar(title: const Text('Assignments')),
     body: ListView.builder(
@@ -101,15 +140,15 @@ Widget build(BuildContext context) {
             },
             child: const Icon(Icons.delete),
             heroTag: null,
+          ),
+          SizedBox(height: 10,),
+          FloatingActionButton(
+            onPressed: _updateAssignmentTitle,
+            child: const Icon(Icons.edit),
+            heroTag:null,
           )
         ],
       )
   );
 }
 }
-
-//return CheckboxListTile(
-          //title: Text(_assignments[index]['title']),
-          //value: _assignments[index]['completed'],
-          //onChanged: (value) => _toggleCompleted(index, value),
-        //);
