@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../presenters/assignment_presenter.dart';
 
 class AssignmentListScreen extends StatefulWidget {
   const AssignmentListScreen({super.key});
@@ -9,7 +10,7 @@ class AssignmentListScreen extends StatefulWidget {
 }
 
 class _AssignmentListScreenState extends State<AssignmentListScreen> {
-  final List<Map<String, dynamic>> _assignments = [];
+  final AssignmentPresenter _presenter = AssignmentPresenter();
 
   void _showAddAssignmentDialog() {
     String newAssignmentTitle = '';
@@ -35,10 +36,7 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
               onPressed: () {
                 if (newAssignmentTitle.trim().isNotEmpty) {
                   setState(() {
-                    _assignments.add({
-                      'title': newAssignmentTitle.trim(),
-                      'completed': false,
-                    });
+                    _presenter.addAssignment(newAssignmentTitle.trim());
                   });
                 }
                 Navigator.pop(context); // Close Dialog
@@ -53,28 +51,30 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
 
 void _toggleCompleted(int index, bool? value) {
   setState(() {
-    _assignments[index]['completed'] = value ?? false;
+    _presenter.toggleCompleted(index);
   });
 }
 
 @override
 Widget build(BuildContext context) {
+  final assignments = _presenter.assignments;  
+
   return Scaffold(
     appBar: AppBar(title: const Text('Assignments')),
     body: ListView.builder(
-      itemCount: _assignments.length,
+      itemCount: assignments.length,
       itemBuilder: (context, index) {
         return Card(
           color:Colors.blue,
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: CheckboxListTile(
-              value: _assignments[index]['completed'],
-              onChanged: (value) => _toggleCompleted(index,value),
+              value: assignments[index].isCompleted,
+              onChanged: (value) => _toggleCompleted(index, value),
               title: Text(
-                _assignments[index]['title'],
+                assignments[index].title,
                 style: TextStyle(
-                  decoration: _assignments[index]['completed']
+                  decoration: assignments[index].isCompleted
                       ? TextDecoration.lineThrough
                       : TextDecoration.none,
                   color: Colors.white,
@@ -96,7 +96,7 @@ Widget build(BuildContext context) {
           FloatingActionButton(
             onPressed: () {
               setState(() {
-                _assignments.removeWhere((assignment) => assignment['completed']);
+                assignments.removeWhere((assignment) => assignment.isCompleted);
               });
             },
             child: const Icon(Icons.delete),
