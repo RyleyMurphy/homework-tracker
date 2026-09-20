@@ -64,17 +64,52 @@ Widget build(BuildContext context) {
     body: ListView.builder(
       itemCount: _assignments.length,
       itemBuilder: (context, index) {
-        return CheckboxListTile(
-          title: Text(_assignments[index]['title']),
-          value: _assignments[index]['completed'],
-          onChanged: (value) => _toggleCompleted(index, value),
+        return Card(
+          color:Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: CheckboxListTile(
+              value: _assignments[index]['completed'],
+              onChanged: (value) => _toggleCompleted(index,value),
+              title: Text(
+                _assignments[index]['title'],
+                style: TextStyle(
+                  decoration: _assignments[index]['completed']
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          ),
         );
-      },
-    ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: _showAddAssignmentDialog,
-      child: const Icon(Icons.add),
-    ),
+      }),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _showAddAssignmentDialog,
+            child: const Icon(Icons.add),
+            heroTag: null,
+          ),
+          SizedBox(height: 10,),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _assignments.removeWhere((assignment) => assignment['completed']);
+              });
+            },
+            child: const Icon(Icons.delete),
+            heroTag: null,
+          )
+        ],
+      )
   );
 }
 }
+
+//return CheckboxListTile(
+          //title: Text(_assignments[index]['title']),
+          //value: _assignments[index]['completed'],
+          //onChanged: (value) => _toggleCompleted(index, value),
+        //);
