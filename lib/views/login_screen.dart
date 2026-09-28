@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../presenters/auth_presenter.dart';
 import 'main_navigation.dart';
 import 'signup_screen.dart';
+import 'password_reset.dart';
 
 class LoginScreen extends StatefulWidget {
     const LoginScreen({super.key});
@@ -44,7 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                     children: [
-                        if (_errorMessage!, style: const TextStyle(color: Colors.red)),
+                        if (_errorMessage != null)
+                            Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
                         TextField(
                             controller: _emailController,
                             decoration: const InputDecoration(labelText: 'Email'),
@@ -64,6 +66,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 );
                             },
                             child: const Text ('Don\'t have an account? Sign up'),
+                        ),
+                        TextButton(
+                            onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const PasswordResetScreen()),
+                                );
+                            },
+                            child: const Text ('Forgot Password?'),
                         ),
                     ],
                 ),

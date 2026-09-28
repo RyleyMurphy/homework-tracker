@@ -58,14 +58,19 @@ class _SignupScreenState extends State<SignupScreen> {
                             decoration: const InputDecoration(labelText: 'Email'),
                         ),
                         TextField(
-                            controller: _passwordController,
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(labelText: 'Password'),
+                        ),
+                        TextField(
+                            controller: _confirmPasswordController,
                             obscureText: true,
                             decoration: const InputDecoration(labelText: 'Confirm Password'),
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
                             onPressed: _handleSignup,
-                            child: const Text ('Sign Up),')
+                            child: const Text ('Sign Up'),
                         ),
                         TextButton(onPressed: () {
                             Navigator.pushReplacement(
