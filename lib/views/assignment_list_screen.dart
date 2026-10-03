@@ -11,7 +11,18 @@ class AssignmentListScreen extends StatefulWidget {
 
 class _AssignmentListScreenState extends State<AssignmentListScreen> {
   final AssignmentPresenter _presenter = AssignmentPresenter();
+  bool _isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadAssignments();
+  }
+
+  Future<void> _loadAssignments() async {
+    await _presenter.loadAssignments();
+    setState(() => _isLoading = false);
+  }
 
   void _updateAssignmentTitle() {
     String updatedTitle = '';
@@ -31,20 +42,6 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context), // Cancel Button
               child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (updatedTitle.trim().isNotEmpty) {
-                  setState(() {
-                    // Update the title of the first assignment for demonstration purposes
-                    if (_presenter.assignments.isNotEmpty) {
-                      _presenter.updateAssignmentTitle(0, updatedTitle.trim());
-                    }
-                  });
-                }
-                Navigator.pop(context); // Close Dialog
-              },
-              child: const Text('Update'),
             ),
           ],
         );
@@ -73,11 +70,10 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (newAssignmentTitle.trim().isNotEmpty) {
-                  setState(() {
-                    _presenter.addAssignment(newAssignmentTitle.trim());
-                  });
+                  await _presenter.addAssignment(newAssignmentTitle.trim());
+                  setState(() {});
                 }
                 Navigator.pop(context); // Close Dialog
               },
@@ -89,40 +85,28 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
     );
   }
 
-void _toggleCompleted(int index, bool? value) {
-  setState(() {
-    _presenter.toggleCompleted(index);
-  });
-}
-
 @override
 Widget build(BuildContext context) {
   final assignments = _presenter.assignments;  
   return Scaffold(
     appBar: AppBar(title: const Text('Assignments')),
-    body: ListView.builder(
-      itemCount: assignments.length,
-      itemBuilder: (context, index) {
-        return Card(
-          color:Colors.blue,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: CheckboxListTile(
-              value: assignments[index].isCompleted,
-              onChanged: (value) => _toggleCompleted(index, value),
-              title: Text(
-                assignments[index].title,
-                style: TextStyle(
-                  decoration: assignments[index].isCompleted
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                  color: Colors.white,
-                ),
-              ),
-            )
-          ),
-        );
-      }),
+    body: 
+        _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+          itemCount: assignments.length,
+          itemBuilder: (context, index) {
+            final assignment = assignments[index];
+            return CheckboxListTile(
+              title: Text(assignment.title),
+              value: assignment.isCompleted,
+              onChanged: (_) async {
+                await _presenter.toggleCompleted(index);
+                setState(() {});
+              },
+            );
+          },
+        ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
