@@ -10,6 +10,18 @@ class CourseListScreen extends StatefulWidget {
 
 class _CourseListScreenState extends State<CourseListScreen> {
   final CoursePresenter _coursePresenter = CoursePresenter();
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCourses();
+  }
+
+  Future<void> _loadCourses() async {
+    await _coursePresenter.loadCourses();
+    setState(() => _isLoading = false);
+  }
 
   void _showAddCourseDialog() {
     String name = '';
@@ -38,11 +50,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async{
                 if (name.trim().isNotEmpty) {
-                  setState(() {
-                    _coursePresenter.addCourse(name.trim(), description);
-                  });
+                  await _coursePresenter.addCourse(name.trim(), description);
+                  setState(() {});
                   Navigator.pop(context);
                 }
               },
@@ -60,16 +71,22 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(title: const Text('Courses')),
-    body: ListView.builder(
-      itemCount: courses.length,
-      itemBuilder: (context, index) {
-        final course = courses[index];
-        return ListTile(
-          title: Text(course.name),
-          subtitle: course.description != null ? Text(course.description!) : null,
-        );
-      },
-    ),
+    body: 
+      _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            return ListTile(
+              title: Text(course.name),
+              subtitle:
+                course.description != null
+                ? Text(course.description!)
+                : null,
+            );
+          },
+        ),
     floatingActionButton: FloatingActionButton(
       onPressed: _showAddCourseDialog,
       child: const Icon(Icons.add),
