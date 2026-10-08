@@ -21,4 +21,16 @@ class AssignmentPresenter {
     await Assignment.updateCompletionStatus(index, _assignments);
     _assignments[index].isCompleted = !_assignments[index].isCompleted;
   }
+
+  Future<void> filterAssignments(String query) async {
+    final normalizedQuery = query.toLowerCase();
+    final filtered = _assignments
+      .where((assignment) =>
+        assignment.title.toLowerCase().contains(normalizedQuery))
+      .toList();
+    _assignments
+    ..clear()
+    ..addAll(filtered);
+  }
+
 }

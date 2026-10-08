@@ -13,6 +13,8 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
   final AssignmentPresenter _presenter = AssignmentPresenter();
   bool _isLoading = true;
 
+  
+
   @override
   void initState() {
     super.initState();
@@ -107,9 +109,20 @@ Widget build(BuildContext context) {
             );
           },
         ),
+
+      
+
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          SearchBar(
+            onChanged: (query) {
+              setState(() {
+                _presenter.filterAssignments(query);
+              });
+            },
+          ),
+
           FloatingActionButton(
             onPressed: _showAddAssignmentDialog,
             child: const Icon(Icons.add),
@@ -132,7 +145,7 @@ Widget build(BuildContext context) {
             heroTag:null,
           )
         ],
-      )
+      ),
   );
 }
 }

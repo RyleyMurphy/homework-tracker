@@ -12,6 +12,12 @@ class CoursePresenter {
     ..addAll(fetched);
   }
 
+  Future<void> deleteCourse(String courseName) async {
+    final course = _courses.firstWhere((c) => c.name == courseName, orElse: () => throw Exception('Course not found'));
+    await Course.deleteCourse(course.hashCode);
+    _courses.remove(course);
+  }
+
   Future<void> addCourse(String name, String? description) async {
     await Course.addCourse(name, description);
     _courses.add(Course(name: name, description: description));

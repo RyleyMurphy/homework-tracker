@@ -29,6 +29,21 @@ class Course {
       }).toList();
   }
 
+  static Future<void> deleteCourse(int courseId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final snapshot = await _firestore
+      .collection('courses')
+      .where('userId', isEqualTo: userId)
+      .where('id', isEqualTo: courseId)
+      .get();
+
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
+
   static Future<void> addCourse(String name, String? description) async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;

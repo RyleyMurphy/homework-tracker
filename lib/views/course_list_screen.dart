@@ -23,6 +23,38 @@ class _CourseListScreenState extends State<CourseListScreen> {
     setState(() => _isLoading = false);
   }
 
+  void _showDeleteCourseDialog(String courseName) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Course'),
+          content: Text('Input the name of the course to delete.\nClick Enter to confirm.'),
+          actions: [
+            TextField(
+              decoration: const InputDecoration(labelText: 'Course Name'),
+              onSubmitted: (value) async {
+                if (value.trim() == courseName) {
+                  await _coursePresenter.deleteCourse(courseName);
+                  setState(() {});
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Course name does not match')),
+                  );
+                }
+              },
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
   void _showAddCourseDialog() {
     String name = '';
     String? description;
@@ -87,9 +119,23 @@ Widget build(BuildContext context) {
             );
           },
         ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: _showAddCourseDialog,
-      child: const Icon(Icons.add),
+    floatingActionButton: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FloatingActionButton(
+          onPressed: _showAddCourseDialog,
+          child: const Icon(Icons.add),
+        ),
+        const SizedBox(width: 16),
+        FloatingActionButton(
+          onPressed: () {
+            if (courses.isNotEmpty) {
+              _showDeleteCourseDialog(courses.last.name);
+            }
+          },
+          child: const Icon(Icons.delete),
+        ),
+      ],
     ),
   );
 }
