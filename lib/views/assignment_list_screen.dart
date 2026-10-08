@@ -26,6 +26,39 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
     setState(() => _isLoading = false);
   }
 
+  void _filterAssignmentsDialog() async {
+    String query = '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Filter Assignments'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'Enter search query'),
+            onChanged: (value) {
+              query = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel Button
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _presenter.filterAssignments(query);
+                setState(() {});
+                Navigator.pop(context); // Close Dialog
+              },
+              child: const Text('Filter'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _updateAssignmentTitle() {
     String updatedTitle = '';
     showDialog(
@@ -110,19 +143,14 @@ Widget build(BuildContext context) {
           },
         ),
 
-      
-
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SearchBar(
-            onChanged: (query) {
-              setState(() {
-                _presenter.filterAssignments(query);
-              });
-            },
+          FloatingActionButton(
+            onPressed: _filterAssignmentsDialog,
+            child: const Icon(Icons.search),
           ),
-
+          SizedBox(height: 10,),
           FloatingActionButton(
             onPressed: _showAddAssignmentDialog,
             child: const Icon(Icons.add),
