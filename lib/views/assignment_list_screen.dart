@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../presenters/assignment_presenter.dart';
 import '../presenters/course_presenter.dart';
 import '../widgets/add_fab.dart';
+import '../widgets/delete_fab.dart';
 
 class AssignmentListScreen extends StatefulWidget {
   const AssignmentListScreen({super.key});
@@ -217,14 +218,8 @@ Widget build(BuildContext context) {
             onPressed: _showAddAssignmentDialog,
           ),
           SizedBox(height: 10,),
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                displayedAssignments.removeWhere((assignment) => assignment.isCompleted);
-              });
-            },
-            child: const Icon(Icons.delete),
-            heroTag: null,
+          DeleteFab(
+            onPressed: _showDeleteAssignmentDialog,
           ),
           SizedBox(height: 10,),
           FloatingActionButton(

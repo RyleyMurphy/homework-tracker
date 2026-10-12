@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../presenters/course_presenter.dart';
 import '../widgets/add_fab.dart';
+import '../widgets/delete_fab.dart';
 
 class CourseListScreen extends StatefulWidget {
   const CourseListScreen({super.key});
@@ -127,13 +128,12 @@ Widget build(BuildContext context) {
           onPressed: _showAddCourseDialog,
         ),
         const SizedBox(width: 16),
-        FloatingActionButton(
+        DeleteFab(
           onPressed: () {
             if (courses.isNotEmpty) {
               _showDeleteCourseDialog(courses.last.name);
             }
           },
-          child: const Icon(Icons.delete),
         ),
       ],
     ),
