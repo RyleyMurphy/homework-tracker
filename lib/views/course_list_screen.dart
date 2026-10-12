@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../presenters/course_presenter.dart';
+import '../widgets/add_fab.dart';
 
 class CourseListScreen extends StatefulWidget {
   const CourseListScreen({super.key});
@@ -122,9 +123,8 @@ Widget build(BuildContext context) {
     floatingActionButton: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FloatingActionButton(
+        AddFab(
           onPressed: _showAddCourseDialog,
-          child: const Icon(Icons.add),
         ),
         const SizedBox(width: 16),
         FloatingActionButton(

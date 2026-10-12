@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../presenters/assignment_presenter.dart';
+import '../presenters/course_presenter.dart';
+import '../widgets/add_fab.dart';
 
 class AssignmentListScreen extends StatefulWidget {
   const AssignmentListScreen({super.key});
@@ -11,19 +13,27 @@ class AssignmentListScreen extends StatefulWidget {
 
 class _AssignmentListScreenState extends State<AssignmentListScreen> {
   final AssignmentPresenter _presenter = AssignmentPresenter();
+  final CoursePresenter _coursePresenter = CoursePresenter();
   bool _isLoading = true;
-
+  String? _selectedCourseFilter;
+  String? _newAssignmentCourse;
+  List<String> _courseNames = [];
   
 
   @override
   void initState() {
     super.initState();
-    _loadAssignments();
+    _loadData();
   }
 
-  Future<void> _loadAssignments() async {
+  Future<void> _loadData() async {
     await _presenter.loadAssignments();
-    setState(() => _isLoading = false);
+    await _coursePresenter.loadCourses();
+    
+    setState(() {
+      _isLoading = false;
+    _courseNames = _coursePresenter.courses.map((c) => c.name).toList();
+    });
   }
 
   void _filterAssignmentsDialog() async {
@@ -86,18 +96,33 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
 
   void _showAddAssignmentDialog() {
     String newAssignmentTitle = '';
+    _newAssignmentCourse = _courseNames.isNotEmpty ? _courseNames.first : null;
 
     showDialog(
       context:context,
       builder:(context) {
         return AlertDialog(
           title: const Text('Add Assignment'),
-          content: TextField(
-            autofocus: true,
-            decoration: const InputDecoration(hintText: 'Enter assignment title'),
-            onChanged: (value) {
-              newAssignmentTitle = value;
-            },
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Enter assignment title',
+                ),
+                onChanged: (value) => newAssignmentTitle = value,
+              ),
+              const SizedBox(height: 12),
+              DropdownButton<String>(
+                value: _newAssignmentCourse,
+                items:
+                  _courseNames.map((name) {
+                    return DropdownMenuItem<String>(value: name, child: Text(name));
+                  }).toList(),
+                  onChanged:
+                  (value) => setState(() => _newAssignmentCourse = value),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -106,11 +131,14 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
             ),
             TextButton(
               onPressed: () async {
-                if (newAssignmentTitle.trim().isNotEmpty) {
-                  await _presenter.addAssignment(newAssignmentTitle.trim());
+                if (newAssignmentTitle.trim().isNotEmpty && _newAssignmentCourse != null) {
+                  await _presenter.addAssignment(
+                    newAssignmentTitle.trim(),
+                    _newAssignmentCourse!
+                  );
                   setState(() {});
+                  Navigator.pop(context);
                 }
-                Navigator.pop(context); // Close Dialog
               },
               child: const Text('Add'),
             ),
@@ -119,21 +147,55 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
       },
     );
   }
-
 @override
 Widget build(BuildContext context) {
   final assignments = _presenter.assignments;  
+  final displayedAssignments =
+      _selectedCourseFilter == null
+        ? assignments
+        : assignments
+          .where((a) => a.courseName == _selectedCourseFilter)
+          .toList();
+
   return Scaffold(
-    appBar: AppBar(title: const Text('Assignments')),
+    appBar: AppBar(
+      title: const Text('Assignments'),
+    actions: [
+      if (_courseNames.isNotEmpty)
+        DropdownButton<String>(
+          hint: const Text(
+            'Filter by course',
+            style: TextStyle(color: Colors.white),
+          ),
+          dropdownColor: Colors.blue[100],
+          value: _selectedCourseFilter,
+          onChanged: (value) {
+            setState(() {
+              _selectedCourseFilter = value;
+            });
+          },
+          items: [
+            const DropdownMenuItem<String> (
+              value: null,
+              child: Text('All Courses'),
+            ),
+            ..._courseNames.map(
+              (name) => DropdownMenuItem(value: name, child: Text(name)),
+            ),
+          ],
+        ),
+      ],
+    ),
     body: 
         _isLoading
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(
-          itemCount: assignments.length,
+          itemCount: displayedAssignments.length,
           itemBuilder: (context, index) {
-            final assignment = assignments[index];
+            final assignment = displayedAssignments[index];
             return CheckboxListTile(
               title: Text(assignment.title),
+              subtitle: Text('Course: ${assignment.courseName}'),
               value: assignment.isCompleted,
               onChanged: (_) async {
                 await _presenter.toggleCompleted(index);
@@ -151,16 +213,14 @@ Widget build(BuildContext context) {
             child: const Icon(Icons.search),
           ),
           SizedBox(height: 10,),
-          FloatingActionButton(
+          AddFab(
             onPressed: _showAddAssignmentDialog,
-            child: const Icon(Icons.add),
-            heroTag: null,
           ),
           SizedBox(height: 10,),
           FloatingActionButton(
             onPressed: () {
               setState(() {
-                assignments.removeWhere((assignment) => assignment.isCompleted);
+                displayedAssignments.removeWhere((assignment) => assignment.isCompleted);
               });
             },
             child: const Icon(Icons.delete),
