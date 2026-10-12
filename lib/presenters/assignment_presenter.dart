@@ -33,4 +33,9 @@ class AssignmentPresenter {
     ..addAll(filtered);
   }
 
+  Future<void> deleteAssignment(int index) async {
+    await Assignment.deleteCompletedAssignments();
+    _assignments.removeAt(index);
+  }
+
 }

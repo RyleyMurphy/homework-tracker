@@ -95,6 +95,32 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
     );
   }
 
+  void _showDeleteAssignmentDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Completed Assignments'),
+          content: const Text('Are you sure you want to delete all completed assignments?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel Button
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _presenter.deleteAssignment(0); // Delete all completed assignments
+                setState(() {});
+                Navigator.pop(context); // Close Dialog
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showAddAssignmentDialog() {
     String newAssignmentTitle = '';
     _newAssignmentCourse = _courseNames.isNotEmpty ? _courseNames.first : null;
