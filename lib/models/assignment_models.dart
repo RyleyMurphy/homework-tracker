@@ -56,7 +56,7 @@ class Assignment {
       }
     }
 
-    static Future<void> deleteCompletedAssignments() async {
+    static Future<void> deleteAssignment(String title) async {
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
@@ -64,8 +64,9 @@ class Assignment {
       if (snapshot.exists) {
         final data = Map<String, dynamic>.from(snapshot.value as Map);
         for (final entry in data.entries) {
-          if (entry.value['isCompleted'] == true) {
+          if (entry.value['title'] == title) {
             await _db.child('assignments/$userId/${entry.key}').remove();
+            break;
           }
         }
       }

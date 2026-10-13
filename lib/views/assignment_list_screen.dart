@@ -95,25 +95,31 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
     );
   }
 
-  void _showDeleteAssignmentDialog() {
+  void _showDeleteAssignmentDialog(String assignmentTitle) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Completed Assignments'),
-          content: const Text('Are you sure you want to delete all completed assignments?'),
+          title: const Text('Delete Assignments'),
+          content: const Text('Input the name of the assignment to delete.\nClick Enter to confirm.'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context), // Cancel Button
-              child: const Text('Cancel'),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Assignment Title'),
+              onSubmitted: (value) async {
+                if (value.trim() == assignmentTitle) {
+                  await _presenter.deleteAssignment(assignmentTitle);
+                  setState(() {});
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Assignment name does not match')),
+                  );
+                }
+              },
             ),
             TextButton(
-              onPressed: () async {
-                await _presenter.deleteAssignment(0); // Delete all completed assignments
-                setState(() {});
-                Navigator.pop(context); // Close Dialog
-              },
-              child: const Text('Delete'),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -245,7 +251,11 @@ Widget build(BuildContext context) {
           ),
           SizedBox(height: 10,),
           DeleteFab(
-            onPressed: _showDeleteAssignmentDialog,
+            onPressed: () {
+              if (displayedAssignments.isNotEmpty) {
+                _showDeleteAssignmentDialog(displayedAssignments.last.title);
+              }
+            },
           ),
           SizedBox(height: 10,),
           FloatingActionButton(
