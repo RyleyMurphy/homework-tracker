@@ -38,4 +38,10 @@ class AssignmentPresenter {
     _assignments.removeWhere((assignment) => assignment.title == title);
   }
 
+  int get totalAssignments => _assignments.length;
+
+  int get completedAssignments => _assignments.where((a) => a.isCompleted).length;
+
+  double get completeionRatio => totalAssignments == 0 ? 0 : completedAssignments / totalAssignments;
+
 }
