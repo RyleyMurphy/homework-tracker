@@ -20,7 +20,7 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byIcon(Icons.delete), findsOneWidget);
 
     await tester.tap(find.byType(DeleteFab));
     await tester.pump();
